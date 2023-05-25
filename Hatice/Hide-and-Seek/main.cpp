@@ -1,3 +1,4 @@
+
 #include <QApplication>
 #include <QWidget>
 #include <QPainter>
@@ -105,16 +106,16 @@ protected:
             // Kazananı yazdırma
             QString winnerText = "";
             if (player.score > player2.score) {
-                winnerText += "Winner: Player 1\nScore: "+ std::to_string(player.score);
+                winnerText += "Winner: Player 1";
             } else if (player2.score > player.score) {
-                winnerText += "Winner: Player 2\nScore: "+ std::to_string(player2.score);
+                winnerText += "Winner: Player 2";
             } else {
                 winnerText += "It's a tie";
             }
 
             // Kazanan metninin boyutlarını ve konumunu hesaplama
-            int winnerWidth = 400;
-            int winnerHeight = 100;
+            int winnerWidth = 300;
+            int winnerHeight = 50;
             int winnerX = width() / 2 - winnerWidth / 2;
             int winnerY = height() / 2 - winnerHeight / 2 + 50;
 
