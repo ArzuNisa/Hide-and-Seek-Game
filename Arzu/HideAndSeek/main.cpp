@@ -1,3 +1,4 @@
+
 #include <QApplication>
 #include <QWidget>
 #include <QPainter>
@@ -5,6 +6,7 @@
 #include <QTimer>
 #include <QRandomGenerator>
 #include <QDebug>
+
 
 struct Player {
     int x, y; // Oyuncunun konumu
@@ -25,9 +27,10 @@ struct Ghost {
 class GameWidget : public QWidget {
     int scWidth = 1920;
     int scHeight = 1080;
+
 public:
     GameWidget(QWidget *parent = nullptr)
-        : QWidget(parent), player({ 0, 50, 20, 20, 38, 0}), player2({ scWidth - 100, 50, 20, 20, 38, 0}), ghosts(), timer(), isGameFinished(false)
+        : QWidget(parent), player({ 60, 50, 20, 20, 38, 0}), player2({ scWidth - 100, 50, 20, 20, 38, 0}), ghosts(), timer(), isGameFinished(false)
     {
 
         setFixedSize(scWidth, scHeight);
@@ -45,6 +48,12 @@ public:
         });
         timer.start(16); // 60 FPS (16 ms)
     }
+    //Destructor
+    ~GameWidget() {
+        qDebug() << "\nDestructor executed\n";
+        timer.stop();
+    }
+
 
 protected:
     void paintEvent(QPaintEvent *event) override {
@@ -105,16 +114,16 @@ protected:
             // Kazananı yazdırma
             QString winnerText = "";
             if (player.score > player2.score) {
-                winnerText += "Winner: Player 1\nScore: "+ std::to_string(player.score);
+                winnerText += "Winner: Player 1";
             } else if (player2.score > player.score) {
-                winnerText += "Winner: Player 2\nScore: "+ std::to_string(player2.score);
+                winnerText += "Winner: Player 2";
             } else {
                 winnerText += "It's a tie";
             }
 
             // Kazanan metninin boyutlarını ve konumunu hesaplama
-            int winnerWidth = 400;
-            int winnerHeight = 100;
+            int winnerWidth = 300;
+            int winnerHeight = 50;
             int winnerX = width() / 2 - winnerWidth / 2;
             int winnerY = height() / 2 - winnerHeight / 2 + 50;
 
@@ -138,39 +147,56 @@ protected:
         }
     }
 
-    void keyPressEvent(QKeyEvent *event) override {
+    void keyPressEvent(QKeyEvent* event) override {
         // Klavye tuşlarına göre oyuncuyu hareket ettirme
         switch (event->key()) {
         case Qt::Key_Up:
-            player.y -= player.speed;
+            if (player.y - player.speed >= -10) {
+                player.y -= player.speed;
+            }
             break;
         case Qt::Key_Down:
-            player.y += player.speed;
+            if (player.y + player.height + player.speed + 55 <= height()) {
+                player.y += player.speed;
+            }
             break;
         case Qt::Key_Left:
-            player.x -= player.speed;
+            if (player.x - player.speed >= -20) {
+                player.x -= player.speed;
+            }
             break;
         case Qt::Key_Right:
-            player.x += player.speed;
+            if (player.x + player.width + player.speed -25 <= width()) {
+                player.x += player.speed;
+            }
             break;
 
         case Qt::Key_W:
-            player2.y -= player2.speed;
+            if (player2.y - player2.speed >= -10) {
+                player2.y -= player2.speed;
+            }
             break;
         case Qt::Key_S:
-            player2.y += player2.speed;
+            if (player2.y + player2.height + player2.speed +55 <= height()) {
+                player2.y += player2.speed;
+            }
             break;
         case Qt::Key_A:
-            player2.x -= player2.speed;
+            if (player2.x - player2.speed >= -10) {
+                player2.x -= player2.speed;
+            }
             break;
         case Qt::Key_D:
-            player2.x += player2.speed;
+            if (player2.x + player2.width + player2.speed -25<= width()) {
+                player2.x += player2.speed;
+            }
             break;
         }
 
         // Ekrana tekrar çizim talebi gönderme
         update();
     }
+
 
     void mousePressEvent(QMouseEvent* event) override {
         // Oyun bittiğinde yeniden başlatma düğmesine tıklama kontrolü
