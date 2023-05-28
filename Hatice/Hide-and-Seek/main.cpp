@@ -1,4 +1,3 @@
-
 #include <QApplication>
 #include <QWidget>
 #include <QPainter>
@@ -6,6 +5,7 @@
 #include <QTimer>
 #include <QRandomGenerator>
 #include <QDebug>
+
 
 struct Player {
     int x, y; // Oyuncunun konumu
@@ -26,9 +26,10 @@ struct Ghost {
 class GameWidget : public QWidget {
     int scWidth = 1920;
     int scHeight = 1080;
+
 public:
     GameWidget(QWidget *parent = nullptr)
-        : QWidget(parent), player({ 0, 50, 20, 20, 38, 0}), player2({ scWidth - 100, 50, 20, 20, 38, 0}), ghosts(), timer(), isGameFinished(false)
+        : QWidget(parent), player({ 60, 50, 20, 20, 38, 0}), player2({ scWidth - 100, 50, 20, 20, 38, 0}), ghosts(), timer(), isGameFinished(false)
     {
 
         setFixedSize(scWidth, scHeight);
@@ -46,6 +47,12 @@ public:
         });
         timer.start(16); // 60 FPS (16 ms)
     }
+    //Destructor
+    ~GameWidget() {
+        qDebug() << "\nDestructor executed\n";
+        timer.stop();
+    }
+
 
 protected:
     void paintEvent(QPaintEvent *event) override {
@@ -139,33 +146,49 @@ protected:
         }
     }
 
-    void keyPressEvent(QKeyEvent *event) override {
+    void keyPressEvent(QKeyEvent* event) override {
         // Klavye tuşlarına göre oyuncuyu hareket ettirme
         switch (event->key()) {
         case Qt::Key_Up:
-            player.y -= player.speed;
+            if (player.y - player.speed >= -10) {
+                player.y -= player.speed;
+            }
             break;
         case Qt::Key_Down:
-            player.y += player.speed;
+            if (player.y + player.height + player.speed + 55 <= height()) {
+                player.y += player.speed;
+            }
             break;
         case Qt::Key_Left:
-            player.x -= player.speed;
+            if (player.x - player.speed >= -20) {
+                player.x -= player.speed;
+            }
             break;
         case Qt::Key_Right:
-            player.x += player.speed;
+            if (player.x + player.width + player.speed -25 <= width()) {
+                player.x += player.speed;
+            }
             break;
 
         case Qt::Key_W:
-            player2.y -= player2.speed;
+            if (player2.y - player2.speed >= -10) {
+                player2.y -= player2.speed;
+            }
             break;
         case Qt::Key_S:
-            player2.y += player2.speed;
+            if (player2.y + player2.height + player2.speed +55 <= height()) {
+                player2.y += player2.speed;
+            }
             break;
         case Qt::Key_A:
-            player2.x -= player2.speed;
+            if (player2.x - player2.speed >= -10) {
+                player2.x -= player2.speed;
+            }
             break;
         case Qt::Key_D:
-            player2.x += player2.speed;
+            if (player2.x + player2.width + player2.speed -25<= width()) {
+                player2.x += player2.speed;
+            }
             break;
         }
 
@@ -173,18 +196,29 @@ protected:
         update();
     }
 
+
     void mousePressEvent(QMouseEvent* event) override {
         // Oyun bittiğinde yeniden başlatma düğmesine tıklama kontrolü
         if (isGameFinished && event->button() == Qt::LeftButton) {
-            // Oyunu yeniden başlatma
-            resetGame();
+            // Restart butonunun konumunu ve boyutunu hesaplama
+            int buttonWidth = 250;
+            int buttonHeight = 60;
+            int buttonX = width() / 2 - buttonWidth / 2;
+            int buttonY = height() / 2 - buttonHeight / 2 + 150;
+
+            // Tıklanan koordinatların restart düğmesinin içinde olup olmadığını kontrol etme
+            if (event->x() >= buttonX && event->x() <= buttonX + buttonWidth &&
+                event->y() >= buttonY && event->y() <= buttonY + buttonHeight) {
+                // Oyunu yeniden başlatma
+                resetGame();
+            }
         }
 
     }
 
     void resetGame() {
         // Oyuncuları başlangıç konumuna getirme
-        player.x = 0;
+        player.x = 75;
         player.y = 50;
         player2.x = scWidth - 100;
         player2.y = 50;

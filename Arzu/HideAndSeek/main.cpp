@@ -5,6 +5,9 @@
 #include <QTimer>
 #include <QRandomGenerator>
 #include <QDebug>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+
 
 struct Player {
     int x, y; // Oyuncunun konumu
@@ -25,9 +28,10 @@ struct Ghost {
 class GameWidget : public QWidget {
     int scWidth = 1920;
     int scHeight = 1080;
+
 public:
     GameWidget(QWidget *parent = nullptr)
-        : QWidget(parent), player({ 0, 50, 20, 20, 38, 0}), player2({ scWidth - 100, 50, 20, 20, 38, 0}), ghosts(), timer(), isGameFinished(false)
+        : QWidget(parent), player({ 60, 50, 20, 20, 38, 0}), player2({ scWidth - 100, 50, 20, 20, 38, 0}), ghosts(), timer(), isGameFinished(false)
     {
 
         setFixedSize(scWidth, scHeight);
@@ -36,7 +40,7 @@ public:
         for (int i = 0; i < numGhosts; ++i) {
             int x = QRandomGenerator::global()->bounded(width() - player.width);
             int y = QRandomGenerator::global()->bounded(height() - player.height);
-            ghosts.push_back({ x, y, 20, 20, true, false});
+            ghosts.push_back({ x, y, 20, 20, false, false});
         }
 
         // Timer'ı başlatma
@@ -44,7 +48,29 @@ public:
             timerEvent(nullptr);
         });
         timer.start(16); // 60 FPS (16 ms)
+
+        QMediaPlayer *mediaPlayer = new QMediaPlayer();
+        QAudioOutput *audioOutput = new QAudioOutput();
+
+        mediaPlayer->setAudioOutput(audioOutput);
+        connect(mediaPlayer, SIGNAL(positionChanged(qint64)), this, SLOT(positionChanged(qint64)));
+        // Set the media source for the media player
+
+        mediaPlayer->setSource(QUrl("qrc:/music/kurba.mp3"));
+        audioOutput->setVolume(10);
+
+        connect(mediaPlayer,&QMediaPlayer::mediaStatusChanged,mediaPlayer,&QMediaPlayer::play);
+
+
+        // Start playing the music
+        mediaPlayer->play();
     }
+    //Destructor
+    ~GameWidget() {
+        qDebug() << "\nDestructor executed\n";
+        timer.stop();
+    }
+
 
 protected:
     void paintEvent(QPaintEvent *event) override {
@@ -105,15 +131,15 @@ protected:
             // Kazananı yazdırma
             QString winnerText = "";
             if (player.score > player2.score) {
-                winnerText += "Winner: Player 1\nScore: "+ std::to_string(player.score);
+                winnerText += "Winner: Player 1 \n Score: " + std::to_string(player.score);
             } else if (player2.score > player.score) {
-                winnerText += "Winner: Player 2\nScore: "+ std::to_string(player2.score);
+                winnerText += "Winner: Player 2 \n Score: " +  std::to_string(player2.score);
             } else {
                 winnerText += "It's a tie";
             }
 
             // Kazanan metninin boyutlarını ve konumunu hesaplama
-            int winnerWidth = 400;
+            int winnerWidth = 300;
             int winnerHeight = 100;
             int winnerX = width() / 2 - winnerWidth / 2;
             int winnerY = height() / 2 - winnerHeight / 2 + 50;
@@ -138,33 +164,49 @@ protected:
         }
     }
 
-    void keyPressEvent(QKeyEvent *event) override {
+    void keyPressEvent(QKeyEvent* event) override {
         // Klavye tuşlarına göre oyuncuyu hareket ettirme
         switch (event->key()) {
         case Qt::Key_Up:
-            player.y -= player.speed;
+            if (player.y - player.speed >= -10) {
+                player.y -= player.speed;
+            }
             break;
         case Qt::Key_Down:
-            player.y += player.speed;
+            if (player.y + player.height + player.speed + 55 <= height()) {
+                player.y += player.speed;
+            }
             break;
         case Qt::Key_Left:
-            player.x -= player.speed;
+            if (player.x - player.speed >= -20) {
+                player.x -= player.speed;
+            }
             break;
         case Qt::Key_Right:
-            player.x += player.speed;
+            if (player.x + player.width + player.speed -25 <= width()) {
+                player.x += player.speed;
+            }
             break;
 
         case Qt::Key_W:
-            player2.y -= player2.speed;
+            if (player2.y - player2.speed >= -10) {
+                player2.y -= player2.speed;
+            }
             break;
         case Qt::Key_S:
-            player2.y += player2.speed;
+            if (player2.y + player2.height + player2.speed +55 <= height()) {
+                player2.y += player2.speed;
+            }
             break;
         case Qt::Key_A:
-            player2.x -= player2.speed;
+            if (player2.x - player2.speed >= -10) {
+                player2.x -= player2.speed;
+            }
             break;
         case Qt::Key_D:
-            player2.x += player2.speed;
+            if (player2.x + player2.width + player2.speed -25<= width()) {
+                player2.x += player2.speed;
+            }
             break;
         }
 
@@ -172,21 +214,40 @@ protected:
         update();
     }
 
+
     void mousePressEvent(QMouseEvent* event) override {
         // Oyun bittiğinde yeniden başlatma düğmesine tıklama kontrolü
         if (isGameFinished && event->button() == Qt::LeftButton) {
-            // Oyunu yeniden başlatma
-            resetGame();
+            // Restart butonunun konumunu ve boyutunu hesaplama
+            int buttonWidth = 250;
+            int buttonHeight = 60;
+            int buttonX = width() / 2 - buttonWidth / 2;
+            int buttonY = height() / 2 - buttonHeight / 2 + 150;
+
+            // Tıklanan koordinatların restart düğmesinin içinde olup olmadığını kontrol etme
+            if (event->x() >= buttonX && event->x() <= buttonX + buttonWidth &&
+                event->y() >= buttonY && event->y() <= buttonY + buttonHeight) {
+                // Oyunu yeniden başlatma
+                resetGame();
+            }
         }
 
     }
 
     void resetGame() {
         // Oyuncuları başlangıç konumuna getirme
-        player.x = 0;
+        player.x = 75;
         player.y = 50;
         player2.x = scWidth - 100;
         player2.y = 50;
+
+        ghosts.clear();
+
+        for (int i = 0; i < numGhosts; ++i) {
+            int x = QRandomGenerator::global()->bounded(width() - player.width);
+            int y = QRandomGenerator::global()->bounded(height() - player.height);
+            ghosts.push_back({ x, y, 20, 20, false, false});
+        }
 
         // Hayaletleri tekrar gizleme ve yakalanmadı olarak işaretleme
         for (auto& ghost : ghosts) {
