@@ -8,11 +8,12 @@ GameWidget::GameWidget(QWidget *parent)
 
     setFixedSize(scWidth, scHeight);
 
-    // Rastgele hayaletler oluşturma
+
+     // Creating random ghosts
     try {
         for (int i = 0; i < numGhosts; ++i) {
-            int x = QRandomGenerator::global()->bounded((width()-200) - player.width);
-            int y = QRandomGenerator::global()->bounded((height()-200) - player.height);
+            int x = QRandomGenerator::global()->bounded((width()-300) - player.width);
+            int y = QRandomGenerator::global()->bounded((height()-300) - player.height);
             ghosts.push_back({ x, y, 35, 35, true, false});
         }
     } catch (const std::bad_alloc& e) {
@@ -20,7 +21,7 @@ GameWidget::GameWidget(QWidget *parent)
 
     }
 
-    // Timer'ı başlatma
+    // Starting the timer
     connect(&timer, &QTimer::timeout, this, [this]() {
         try {
             timerEvent(nullptr);
@@ -44,14 +45,15 @@ void GameWidget::paintEvent(QPaintEvent *event){
 
     try {
         if (!isGameFinished) {
-            // Yolu çizme
+            // Drawing the path
             painter.setBrush(Qt::black);
             painter.drawRect(0, 0, width(), height());
+            painter.fillRect(0, 0, width(), height(), QColor("#080834"));
 
-            // Beyaz kareyi çizme p1
+            // Drawing the white square for player 1
             painter.fillRect(player.x - player.whiteSlide, player.y - player.whiteSlide, player.width + player.whiteSqureSize, player.height + player.whiteSqureSize, Qt::gray);
-            // Oyuncuyu çizme p1
 
+            // Drawing player 1
             if (direction == 0)
                 painter.drawPixmap(QRect(player.x, player.y, player.width, player.height), QPixmap(":/images/playerBlueRight.png"))  ;
             else if(direction == 6) {
@@ -67,9 +69,9 @@ void GameWidget::paintEvent(QPaintEvent *event){
                 painter.drawImage(QRect(player.x, player.y, player.width, player.height), QImage(":/images/playerBlueUp.png"))  ;
             }
 
-            // Beyaz kareyi çizme p2
+            // Drawing the white square for player 2
             painter.fillRect(player2.x - player2.whiteSlide, player2.y - player2.whiteSlide, player2.width + player2.whiteSqureSize, player2.height + player2.whiteSqureSize, Qt::gray);
-            // Oyuncuyu çizme p2
+            // Drawing player 2
 
             if (direction2 == 0)
                 painter.drawImage(QRect(player2.x, player2.y, player2.width, player2.height), QImage(":/images/playerGreenRight.png"))  ;
@@ -87,7 +89,7 @@ void GameWidget::paintEvent(QPaintEvent *event){
             }
 
 
-            // Hayaletleri çizme
+            // Drawing the ghosts
             for (const auto& ghost : ghosts ) {
                 if (!ghost.isHidden) {
 
@@ -100,64 +102,61 @@ void GameWidget::paintEvent(QPaintEvent *event){
                 }
             }
 
-            // Skoru yazdırma p1
+            // Drawing the score for player 1
             painter.setPen(Qt::blue);
-            painter.setFont(QFont("Arial", 28));
+            painter.setFont(QFont("Arial", 28 , QFont::Bold));
             painter.drawText(10, 50, "Score: " + QString::number(player.score));
 
-            // Skoru yazdırma p2
+            // Drawing the score for player 2
             painter.setPen(Qt::green);
-            painter.setFont(QFont("Arial", 28));
+            painter.setFont(QFont("Arial", 28 , QFont::Bold));
             painter.drawText(scWidth - 200, 50, "Score: " + QString::number(player2.score));
         }
         else {
-            // Arka planı siyah olarak ayarlama
-            painter.fillRect(0, 0, width(), height(), Qt::black);
-
-            // Oyun bittiğinde "OYUN BİTTİ" mesajını kırmızı renkte ve büyük yazıyla ekrana çizme
-            painter.setPen(Qt::red);
-            painter.setFont(QFont("Arial", 60, QFont::Bold));
+            painter.fillRect(0, 0, width(), height(), QColor("#080834"));
+            painter.setPen(Qt::white);
+            painter.setFont(QFont("Arial", 65, QFont::Bold));
 
             int textWidth = 800;
             int textHeight = 100;
             int textX = width() / 2 - textWidth / 2;
-            int textY = height() / 2 - textHeight / 2 - 30; // Yukarı taşımak için -30 ekleyin
+            int textY = height() / 2 - textHeight / 2 - 120; // Yukarı taşımak için -30 ekleyin
 
             painter.drawText(textX, textY, textWidth, textHeight, Qt::AlignCenter, "GAME OVER");
 
 
-            // Kazananı yazdırma
+            // Drawing the winner text
             QString winnerText = "";
             if (player.score > player2.score) {
 
-                winnerText += "Winner: Player 1 \n Score: " + std::to_string(player.score ) +" Game set: ";
+                winnerText += "Winner: Blue Player \n Score: " + std::to_string(player.score ) ;
 
             } else if (player2.score > player.score) {
 
-                winnerText += "Winner: Player 2 \n Score: " +  std::to_string(player2.score) +" Game set: ";
-            } else {
+                winnerText += "Winner: Green Player \n Score: " +  std::to_string(player2.score) ;
+            } else if (player2.score == player.score){
 
-                winnerText += "It's a tie. Game set: ";
+                winnerText += "It's a tie.";
             }
 
-            // Kazanan metninin boyutlarını ve konumunu hesaplama
+            // Calculating the dimensions and position of the winner text
             int winnerWidth = 500;
             int winnerHeight = 100;
             int winnerX = width() / 2 - winnerWidth / 2;
-            int winnerY = height() / 2 - winnerHeight / 2 + 50;
+            int winnerY = height() / 2 - winnerHeight / 2;
 
-            painter.setPen(Qt::red);
+            painter.setPen(QColor("#02B7E5"));
             painter.setFont(QFont("Arial", 25, QFont::Bold));
             painter.drawText(winnerX, winnerY, winnerWidth, winnerHeight, Qt::AlignCenter, winnerText);
 
-            // Yeniden başlatma düğmesini çizme
+            // Drawing the restart button
             int buttonWidth = 250;
             int buttonHeight = 60;
             int buttonX = width() / 2 - buttonWidth / 2;
             int buttonY = winnerY + winnerHeight + 30;
 
-            painter.setPen(Qt::red);
-            painter.setBrush(Qt::gray);
+            painter.setPen(Qt::white);
+            painter.setBrush(QColor("#02B7E5"));
             painter.drawRect(buttonX, buttonY, buttonWidth, buttonHeight);
             painter.setFont(QFont("Arial", 20, QFont::Bold));
             painter.drawText(buttonX, buttonY, buttonWidth, buttonHeight, Qt::AlignCenter, "Restart");
@@ -169,12 +168,10 @@ void GameWidget::paintEvent(QPaintEvent *event){
         // Handle any exceptions that occur during painting
         qDebug() << "Exception caught: " << e.what();
     }
-
-
 }
 
 void GameWidget::keyPressEvent(QKeyEvent* event) {
-    // Klavye tuşlarına göre oyuncuyu hareket ettirme
+    // Move the player based on the keyboard keys
     switch (event->key()) {
     case Qt::Key_Up:
         if (player.y - player.speed >= -10) {
@@ -227,23 +224,21 @@ void GameWidget::keyPressEvent(QKeyEvent* event) {
         break;
     }
 
-    // Ekrana tekrar çizim talebi gönderme
+    // Request a redraw to the screen
     update();
 }
 
 void GameWidget::mousePressEvent(QMouseEvent* event) {
-    // Oyun bittiğinde yeniden başlatma düğmesine tıklama kontrolü
+    // Check for click on the restart button when the game is finished
     if (isGameFinished && event->button() == Qt::LeftButton) {
-        // Restart butonunun konumunu ve boyutunu hesaplama
         int buttonWidth = 250;
         int buttonHeight = 60;
         int buttonX = width() / 2 - buttonWidth / 2;
-        int buttonY = height() / 2 - buttonHeight / 2 + 150;
+        int buttonY = height() / 2 - buttonHeight / 2 + 100;
 
-        // Tıklanan koordinatların restart düğmesinin içinde olup olmadığını kontrol etme
+        // Check if the clicked coordinates are within the restart button
         if (event->x() >= buttonX && event->x() <= buttonX + buttonWidth &&
             event->y() >= buttonY && event->y() <= buttonY + buttonHeight) {
-            // Oyunu yeniden başlatma
             resetGame();
         }
     }
@@ -251,7 +246,7 @@ void GameWidget::mousePressEvent(QMouseEvent* event) {
 }
 
 void GameWidget::resetGame() {
-    // Oyuncuları başlangıç konumuna getirme
+    // Reset the players to their initial positions
     player.x = 75;
     player.y = 50;
     player2.x = scWidth - 100;
@@ -265,32 +260,26 @@ void GameWidget::resetGame() {
         ghosts.push_back({ x, y, 35, 35, false, false});
     }
 
-    // Hayaletleri tekrar gizleme ve yakalanmadı olarak işaretleme
     for (auto& ghost : ghosts) {
         ghost.isHidden = true;
         ghost.isCatch = false;
     }
 
-    // Skorları sıfırlama
-
     player.score = 0;
     player2.score = 0;
 
-    // Oyunun başladığını ve bitmediğini işaretleme
     isGameFinished = false;
 
-    // Timer'ı başlatma
     timer.start(16); // 60 FPS (16 ms)
 
-    // Ekrana tekrar çizim talebi gönderme
     update();
 
 
 }
 void GameWidget::timerEvent(QTimerEvent *event) {
-    // Timer her tetiklendiğinde hayaletleri kontrol etme
+    // Check the ghosts on each timer tick
     for (auto& ghost : ghosts) {
-        // Kareyle çarpışma kontrolü
+        // Check for collision with the square
         if (ghost.isHidden && player.x - player.whiteSlide < ghost.x + ghost.width &&
             player.x - player.whiteSlide + player.whiteSqureSize > ghost.x &&
             player.y - player.whiteSlide < ghost.y + ghost.height &&
@@ -298,7 +287,7 @@ void GameWidget::timerEvent(QTimerEvent *event) {
         {
             ghost.isHidden = false;
         }
-        // Oyuncuyla çarpışma kontrolü
+        // Check for collision with the player
         if (!ghost.isCatch && player.x < ghost.x + ghost.width &&
             player.x + player.width > ghost.x &&
             player.y < ghost.y + ghost.height &&
@@ -310,7 +299,6 @@ void GameWidget::timerEvent(QTimerEvent *event) {
         }
 
         // PLAYER 2
-        // Kareyle çarpışma kontrolü
         if (ghost.isHidden && player2.x - player2.whiteSlide < ghost.x + ghost.width &&
             player2.x - player2.whiteSlide + player2.whiteSqureSize > ghost.x &&
             player2.y - player2.whiteSlide < ghost.y + ghost.height &&
@@ -318,7 +306,6 @@ void GameWidget::timerEvent(QTimerEvent *event) {
         {
             ghost.isHidden = false;
         }
-        // Oyuncuyla çarpışma kontrolü
         if (!ghost.isCatch && player2.x < ghost.x + ghost.width &&
             player2.x + player2.width > ghost.x &&
             player2.y < ghost.y + ghost.height &&
@@ -330,14 +317,14 @@ void GameWidget::timerEvent(QTimerEvent *event) {
         }
     }
 
-    // Oyunun bitip bitmediğini kontrol etme
-    if (player.score> numGhosts/2 || player2.score >numGhosts/2) {
+    // Check if the game is over
+    if (player.score> numGhosts/2 || player2.score >numGhosts/2 || player.score + player2.score == numGhosts) {
         //counter.push_back(1);
         isGameFinished = true;
         timer.stop();
 
     }
 
-    // Ekrana tekrar çizim talebi gönderme
+    // Request a redraw to the screen
     update();
 }

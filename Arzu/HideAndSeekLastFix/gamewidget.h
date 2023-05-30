@@ -18,18 +18,19 @@
 
 
 struct Player {
-    int x, y; // Oyuncunun konumu
-    int width, height; // Oyuncunun boyutu
-    int speed; // Oyuncunun hızı
-    int score; // Oyuncunun skoru
+
+    int x, y; // Player's position
+    int width, height; // Player's size
+    int speed; // Player's speed
+    int score; // Player's score
     int whiteSqureSize = height * 3;
     int whiteSlide = whiteSqureSize/2.0;
 };
 
 struct Ghost {
-    int x, y; // Hayaletin konumu
-    int width, height; // Hayaletin boyutu
-    bool isHidden; // Hayaletin görünürlüğü
+    int x, y; // Ghost's position
+    int width, height; // Ghost's size
+    bool isHidden; // Ghost's visibility
     bool isCatch;
 };
 

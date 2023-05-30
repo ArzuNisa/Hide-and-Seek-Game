@@ -10,6 +10,7 @@ Menu::Menu(QWidget *parent)
     : QMainWindow(parent)
 {
     layout = new QVBoxLayout();
+    layout->setSpacing(100);
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
@@ -28,10 +29,13 @@ Menu::Menu(QWidget *parent)
 
     adjustButtonSize();
 
-    setStyleSheet("QPushButton { background-color: rgba(76, 175, 80, 0.5); color: white; border-radius: 5px; font-size: 18px; }"
-                  "QPushButton:hover { background-color: #45a049; }"
-                  "QWidget { background-color: #333333; }");
+    setStyleSheet("QPushButton { background-color: rgba(76, 175, 80, 0.5); color: white; border-radius: 5px; font-size: 28px; font-family: Arial; font-weight: bold; }"
+                  "QPushButton:hover { background-color: #02B7E5; }"
+                  "QWidget { background-color: #080834; }");
 
+    layout->setAlignment(Qt::AlignVCenter);
+
+    showFullScreen();
 }
 
 Menu::~Menu()
@@ -50,7 +54,7 @@ void Menu::resizeEvent(QResizeEvent *event)
 
 void Menu::adjustButtonSize()
 {
-    int buttonWidth = width() * 0.4;
+    int buttonWidth = width() * 0.35;
     int buttonHeight = height() * 0.1;
 
     playButton->setFixedSize(buttonWidth, buttonHeight);
@@ -71,15 +75,22 @@ void Menu::onPlayButtonClicked()
 void Menu::onQuitButtonClicked()
 {
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Quit", "Oyundan çıkmak istediğinize emin misiniz?",
-                                  QMessageBox::Yes | QMessageBox::No);
+    QMessageBox msgBox;
+    msgBox.setStyleSheet("QPushButton { background-color: rgba(76, 175, 80, 0.5); color: white; border-radius: 5px; font-size: 10px; font-family: Arial; font-weight: bold; }"
+                         "QPushButton:hover { background-color: #02B7E5; }"
+                         "QWidget { background-color: #080834; }");
+
+    reply = msgBox.question(this, "Quit", "<span style='color: white; font-size: 18px;'>Do you want to exit the game</span>",
+                            QMessageBox::Yes | QMessageBox::No);
+
     if (reply == QMessageBox::Yes) {
         qApp->quit();
     }
 }
 
+
 void Menu::onAboutButtonClicked()
 {
-    QMessageBox::information(this, "About", "Bu oyun hakkında bilgi veren bir metin.");
+    QMessageBox::information(this, "About", "<span style='color: white; font-size: 18px;'>Our game is based on quickly finding and catching hidden ghosts. It's a two-player game where the first player moves with the W, A, S, D keys and the second player moves with the arrow keys to find the hidden ghosts. Once they find a ghost, they need to pass over it to catch it. The player who catches the most ghosts in the shortest amount of time wins. Speed is key in this game!");
 
 }
