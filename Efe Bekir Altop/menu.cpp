@@ -3,8 +3,9 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QMessageBox>
-#include "mainwindow.h"
-#include "main.cpp"
+#include "menu.h"
+#include "gamewidget.h"
+
 Menu::Menu(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -25,12 +26,11 @@ Menu::Menu(QWidget *parent)
     connect(aboutButton, SIGNAL(clicked()), this, SLOT(onAboutButtonClicked()));
     layout->addWidget(aboutButton, 0, Qt::AlignHCenter);
 
-    adjustButtonSize();  // İlk olarak buton boyutlarını ayarla
+    adjustButtonSize();
 
     setStyleSheet("QPushButton { background-color: rgba(76, 175, 80, 0.5); color: white; border-radius: 5px; font-size: 18px; }"
                   "QPushButton:hover { background-color: #45a049; }"
                   "QWidget { background-color: #333333; }");
-
 
 }
 
@@ -45,13 +45,13 @@ Menu::~Menu()
 void Menu::resizeEvent(QResizeEvent *event)
 {
     QMainWindow::resizeEvent(event);
-    adjustButtonSize();  // Her boyut değiştiğinde buton boyutlarını yeniden ayarla
+    adjustButtonSize();
 }
 
 void Menu::adjustButtonSize()
 {
-    int buttonWidth = width() * 0.4;  // Genişlik için yüzde 40
-    int buttonHeight = height() * 0.1;  // Yükseklik için yüzde 10
+    int buttonWidth = width() * 0.4;
+    int buttonHeight = height() * 0.1;
 
     playButton->setFixedSize(buttonWidth, buttonHeight);
     quitButton->setFixedSize(buttonWidth, buttonHeight);
@@ -60,10 +60,12 @@ void Menu::adjustButtonSize()
 
 void Menu::onPlayButtonClicked()
 {
-    hide(); // Mevcut menü penceresini gizle
+    hide();
 
-    GameWidget gameWidget;
-    gameWidget.show();
+    GameWidget* gameWidget = new GameWidget();
+    gameWidget->show();
+
+
 }
 
 void Menu::onQuitButtonClicked()
@@ -78,6 +80,7 @@ void Menu::onQuitButtonClicked()
 
 void Menu::onAboutButtonClicked()
 {
-    QMessageBox::information(this, "About", "Bu oyun hakkında bilgi veren bir metin.");
-    // Oyun hakkında detaylı bilgiler veya diğer içerikler buraya gelebilir
+    QMessageBox::information(this, "About", "Enjoy the thrill of capturing ghosts with our fantastic music. It's free and comes with a nostalgic design inspired by the data from the first computer.");
+
 }
+
