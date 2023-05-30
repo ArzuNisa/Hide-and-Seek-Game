@@ -1,0 +1,13 @@
+release/gamewidget.o
+release/main.o
+release/mainwindow.o
+release/mediaplayer.o
+release/menu.o
+release/gamewidget.o
+release/main.o
+release/mainwindow.o
+release/menu.o
+release/qrc_sounds.o
+release/moc_mainwindow.o
+release/moc_mediaplayer.o
+release/moc_menu.o
