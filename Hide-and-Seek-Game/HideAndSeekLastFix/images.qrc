@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>ghost.png</file>
+        <file>playerBlueDown.png</file>
+        <file>playerBlueLeft.png</file>
+        <file>playerBlueRight.png</file>
+        <file>playerBlueUp.png</file>
+        <file>playerGreenDown.png</file>
+        <file>playerGreenLeft.png</file>
+        <file>playerGreenRight.png</file>
+        <file>playerGreenUp.png</file>
+    </qresource>
+</RCC>
