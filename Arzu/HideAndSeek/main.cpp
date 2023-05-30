@@ -40,7 +40,7 @@ public:
         for (int i = 0; i < numGhosts; ++i) {
             int x = QRandomGenerator::global()->bounded(width() - player.width);
             int y = QRandomGenerator::global()->bounded(height() - player.height);
-            ghosts.push_back({ x, y, 20, 20, false, false});
+            ghosts.push_back({ x, y, 20, 20, true, false});
         }
 
         // Timer'ı başlatma
