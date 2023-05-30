@@ -90,7 +90,7 @@ protected:
                 // Oyuncuyu çizme p1
 
                 if (direction == 0)
-                    painter.drawPixmap(QRect(player.x, player.y, player.width, player.height), QPixmap("C:/Users/90535/OneDrive/Masaüstü/img.gif"))  ;
+                    painter.drawPixmap(QRect(player.x, player.y, player.width, player.height), QPixmap(":/images/playerBlueRight.png"))  ;
                 else if(direction == 6) {
                     painter.drawImage(QRect(player.x, player.y, player.width, player.height), QImage(":/images/playerBlueRight.png"))  ;
                 }
